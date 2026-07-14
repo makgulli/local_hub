@@ -21,6 +21,7 @@
 - [ ] 선정 권역 확정: **구미/경북**
 - [ ] MVP 정의: Must / Should / Won't 확정, 선택기능 최소 1개 선정 → **날씨 정보 연동**
 - [ ] 와이어프레임 검토 (RFP 참고4, 이 리포지토리의 화면 구성과 1:1 대응됨)
+- [ ] 팀 디자인 시안(`docs/design-reference/teamproject.html`, Tailwind CSS 프로토타입) 검토 및 실제 컴포넌트 반영
 - [ ] `SCHEMA.md`, `SOURCE.md` 기준 데이터 구조/라이선스 팀 공유
 - [ ] 리포지토리 초기 세팅 (본 스캐폴드) 팀원 전체 clone 및 `npm install` 확인
 
