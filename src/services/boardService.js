@@ -2,6 +2,8 @@
  * boardService.js
  * ------------------------------------------------------------------
  * RFP(개발 의뢰서) III-2 "커뮤니티 기능(CRUD) 구현" 대응 모듈
+ * teamproject.html 프로토타입의 게시글 스키마(id/author/title/content/password/date)를
+ * 그대로 따른다 — 별도 카테고리 없이 익명 닉네임 기반 단일 소통망.
  *
  * - 별도 회원가입/로그인 없는 익명 게시판.
  * - 게시글은 브라우저 localStorage 에 저장한다. (다른 사용자와 공유되지 않음)
@@ -12,15 +14,7 @@
  *   실서비스라면 반드시 서버 측 해시 저장이 필요하다.
  */
 
-const STORAGE_KEY = 'localhub:posts:ggb' // 구미/경북 권역 게시판 전용 키
-
-export const BOARD_CATEGORIES = [
-  { code: 'FREE', label: '자유' },
-  { code: 'FOOD', label: '맛집 추천' },
-  { code: 'TRAVEL', label: '여행 정보' },
-  { code: 'QNA', label: '질문' },
-  { code: 'ETC', label: '기타' },
-]
+const STORAGE_KEY = 'localhub_v2_posts' // teamproject.html 프로토타입과 동일한 키 사용
 
 function readAll() {
   try {
@@ -36,113 +30,86 @@ function writeAll(posts) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(posts))
 }
 
-function genId() {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+function today() {
+  return new Date().toISOString().slice(0, 10)
 }
 
-/** 목록 조회 (카테고리 필터 + 검색어 + 페이지네이션) */
-export function listPosts({ category = 'ALL', keyword = '', page = 1, pageSize = 10 } = {}) {
-  let posts = readAll().sort((a, b) => b.createdAt - a.createdAt)
-
-  if (category !== 'ALL') {
-    posts = posts.filter((p) => p.category === category)
-  }
-  if (keyword.trim()) {
-    const kw = keyword.trim().toLowerCase()
-    posts = posts.filter(
-      (p) => p.title.toLowerCase().includes(kw) || p.content.toLowerCase().includes(kw)
-    )
-  }
-
-  const total = posts.length
-  const start = (page - 1) * pageSize
-  const items = posts
-    .slice(start, start + pageSize)
-    // 목록에서는 비밀번호를 내려주지 않는다.
-    .map(({ password, ...rest }) => rest)
-
-  return { items, total, page, pageSize, totalPages: Math.max(1, Math.ceil(total / pageSize)) }
+/** 전체 게시글 (최신순) */
+export function listPosts() {
+  return readAll().sort((a, b) => b.id - a.id)
 }
 
-/** 상세 조회 (조회수 +1) */
-export function getPost(id, { countView = true } = {}) {
-  const posts = readAll()
-  const idx = posts.findIndex((p) => p.id === id)
-  if (idx === -1) return null
+/** 검색 (제목/내용/작성자 대상) — teamproject.html filteredPosts와 동일 로직 */
+export function searchPosts(keyword) {
+  const posts = listPosts()
+  if (!keyword?.trim()) return posts
+  const kw = keyword.trim().toLowerCase()
+  return posts.filter(
+    (p) =>
+      p.title.toLowerCase().includes(kw) ||
+      p.content.toLowerCase().includes(kw) ||
+      p.author.toLowerCase().includes(kw)
+  )
+}
 
-  if (countView) {
-    posts[idx].views = (posts[idx].views ?? 0) + 1
-    writeAll(posts)
-  }
-  const { password, ...rest } = posts[idx]
-  return rest
+/** 상세 조회 */
+export function getPost(id) {
+  return readAll().find((p) => p.id === id) ?? null
 }
 
 /** 게시글 작성 */
-export function createPost({ category, title, content, password, nickname = '익명' }) {
-  if (!title?.trim() || !content?.trim()) throw new Error('제목과 내용을 입력해주세요.')
-  if (!/^\d{4,}$/.test(password ?? '')) throw new Error('비밀번호는 숫자 4자리 이상이어야 합니다.')
+export function createPost({ author, title, content, password }) {
+  if (!author?.trim() || !title?.trim() || !content?.trim()) {
+    throw new Error('모든 입력 항목을 빠짐없이 채워주세요.')
+  }
+  if (!password || password.length !== 4 || Number.isNaN(Number(password))) {
+    throw new Error('비밀번호는 숫자 4자리를 정확히 입력해주세요.')
+  }
 
   const posts = readAll()
-  const now = Date.now()
   const post = {
-    id: genId(),
-    category,
+    id: Date.now(),
+    author: author.trim(),
     title: title.trim(),
     content: content.trim(),
     password,
-    nickname,
-    views: 0,
-    createdAt: now,
-    updatedAt: now,
+    date: today(),
   }
-  posts.push(post)
+  posts.unshift(post)
   writeAll(posts)
-  const { password: _pw, ...rest } = post
-  return rest
+  return post
 }
 
 /** 비밀번호 확인 (수정/삭제 전 검증용) */
 export function verifyPassword(id, password) {
   const post = readAll().find((p) => p.id === id)
-  if (!post) return false
-  return post.password === password
+  return Boolean(post) && post.password === password
 }
 
-/** 게시글 수정 (비밀번호 일치 시에만) */
-export function updatePost(id, { title, content, password }) {
+/** 게시글 수정 (작성자/제목/내용만 변경, 비밀번호는 최초 등록값 유지) */
+export function updatePost(id, { author, title, content }) {
   const posts = readAll()
   const idx = posts.findIndex((p) => p.id === id)
   if (idx === -1) throw new Error('게시글을 찾을 수 없습니다.')
-  if (posts[idx].password !== password) throw new Error('비밀번호가 일치하지 않습니다.')
 
   posts[idx] = {
     ...posts[idx],
+    author: author.trim(),
     title: title.trim(),
     content: content.trim(),
-    updatedAt: Date.now(),
   }
   writeAll(posts)
-  const { password: _pw, ...rest } = posts[idx]
-  return rest
+  return posts[idx]
 }
 
-/** 게시글 삭제 (비밀번호 일치 시에만) */
-export function deletePost(id, password) {
-  const posts = readAll()
-  const idx = posts.findIndex((p) => p.id === id)
-  if (idx === -1) throw new Error('게시글을 찾을 수 없습니다.')
-  if (posts[idx].password !== password) throw new Error('비밀번호가 일치하지 않습니다.')
-
-  posts.splice(idx, 1)
+/** 게시글 삭제 */
+export function deletePost(id) {
+  const posts = readAll().filter((p) => p.id !== id)
   writeAll(posts)
   return true
 }
 
 /** 최근 게시글 N개 (홈 화면용) */
-export function recentPosts(limit = 5) {
-  return readAll()
-    .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, limit)
-    .map(({ password, ...rest }) => rest)
+export function recentPosts(limit = 3) {
+  return listPosts().slice(0, limit)
 }

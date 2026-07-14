@@ -1,152 +1,170 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import RiverDivider from '@/components/common/RiverDivider.vue'
-import { SELECTED_REGION_LABEL } from '@/constants/contentType'
-import { recentPosts, BOARD_CATEGORIES } from '@/services/boardService'
+import { loadContentType } from '@/services/dataService'
+import { recentPosts } from '@/services/boardService'
+import { useChatStore } from '@/stores/chat'
 import { fetchCurrentWeather } from '@/services/weatherService'
+import { contentTypeLabel } from '@/constants/contentType'
 
+const chat = useChatStore()
+
+const tourData = ref([])
 const posts = ref([])
 const weather = ref(null)
-const weatherError = ref('')
+const loadError = ref('')
 
-function categoryLabel(code) {
-  return BOARD_CATEGORIES.find((c) => c.code === code)?.label ?? code
+function handleImageError(e, title) {
+  e.target.src = `https://placehold.co/600x450/10b981/ffffff?text=${encodeURIComponent(title)}`
+}
+
+function askAIAboutPoi(poi) {
+  chat.askAboutPoi(poi)
 }
 
 onMounted(async () => {
-  posts.value = recentPosts(5)
+  posts.value = recentPosts(3)
+  try {
+    const { items } = await loadContentType('12') // 관광지
+    tourData.value = items.slice(0, 8)
+  } catch (e) {
+    loadError.value = e.message
+  }
   try {
     weather.value = await fetchCurrentWeather()
-  } catch (e) {
-    weatherError.value = e.message
+  } catch {
+    // 홈 화면에서는 날씨 실패를 조용히 무시 (상세는 /weather 에서 확인)
   }
 })
 </script>
 
 <template>
-  <section class="hero">
-    <div class="container hero-inner">
-      <p class="eyebrow">{{ SELECTED_REGION_LABEL }} 공공데이터 기반</p>
-      <h1>지역 정보 공유 커뮤니티 LocalHub</h1>
-      <p class="lead">{{ SELECTED_REGION_LABEL }}의 생생한 정보를 한눈에 만나보세요</p>
-    </div>
-    <RiverDivider class="hero-wave" />
-  </section>
-
-  <section class="container two-col">
-    <div class="card recent-posts">
-      <h2>최근 게시글</h2>
-      <ul v-if="posts.length">
-        <li v-for="p in posts" :key="p.id">
-          <RouterLink :to="`/board/${p.id}`">
-            <span class="tag">{{ categoryLabel(p.category) }}</span>
-            {{ p.title }}
+  <div class="space-y-12">
+    <!-- Hero Dashboard -->
+    <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 text-white p-8 sm:p-12 shadow-2xl">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/20 via-transparent to-transparent"></div>
+      <div class="relative z-10 max-w-2xl space-y-4">
+        <span class="text-xs font-bold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">지역 특화 연동 서비스</span>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-tight">구미·경북권 로컬 데이터를 손끝에서 만나다</h1>
+        <p class="text-slate-300 text-base sm:text-lg leading-relaxed">
+          구미, 대구, 칠곡, 성주, 고령 권역의 공공 POI 관광 데이터와 실시간 연동된 스마트 가이드, 그리고 주민들의 솔직담백한 익명 커뮤니티가 어우러집니다.
+        </p>
+        <div class="pt-4 flex flex-wrap gap-3">
+          <RouterLink to="/board/write" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 py-3 rounded-2xl shadow-lg shadow-emerald-900/30 transition-all flex items-center space-x-2 text-sm">
+            <span>커뮤니티 글쓰기</span> <i class="fa-solid fa-arrow-right text-xs"></i>
           </RouterLink>
-        </li>
-      </ul>
-      <p v-else class="empty">아직 등록된 게시글이 없어요. 첫 글을 남겨보세요!</p>
-      <RouterLink to="/board/write" class="btn btn-primary write-btn">+ 글쓰기</RouterLink>
-    </div>
-
-    <div class="card weather-card">
-      <h2>오늘의 {{ SELECTED_REGION_LABEL }} 날씨</h2>
-      <div v-if="weather" class="weather-body">
-        <p class="weather-main">{{ weather.weatherEmoji }} {{ weather.temperature }}℃</p>
-        <p class="weather-sub">{{ weather.weatherLabel }} · 풍속 {{ weather.windSpeed }}km/h</p>
-        <span class="badge" :class="`badge-${weather.suitability.level}`">
-          {{ weather.suitability.label }}
-        </span>
-        <p class="weather-reason">{{ weather.suitability.reason }}</p>
+          <button @click="chat.open" class="bg-white/10 hover:bg-white/15 text-white font-medium px-5 py-3 rounded-2xl backdrop-blur transition-colors border border-white/10 text-sm">
+            <i class="fa-solid fa-robot mr-2"></i>AI 가이드와 대화
+          </button>
+        </div>
       </div>
-      <p v-else-if="weatherError" class="empty">{{ weatherError }}</p>
-      <p v-else class="empty">날씨 정보를 불러오는 중...</p>
-      <RouterLink to="/weather" class="btn btn-ghost write-btn">자세히 보기</RouterLink>
     </div>
-  </section>
+
+    <!-- 명소 가이드 (관광지 POI) -->
+    <div class="space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight text-slate-950">✨ 구미·경북 명소 가이드</h2>
+          <p class="text-slate-500 text-sm">한국관광공사 TourAPI 4.0 연동 기반의 로컬 핫플레이스</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xs font-semibold text-slate-400 bg-slate-100 px-2 py-1 rounded-md">공공 데이터</span>
+        </div>
+      </div>
+
+      <p v-if="loadError" class="text-sm text-rose-500 bg-rose-50 border border-rose-100 rounded-2xl p-4">
+        {{ loadError }} — public/data 폴더에 JSON 파일이 있는지 확인해주세요.
+      </p>
+
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div
+          v-for="poi in tourData"
+          :key="poi.contentid"
+          class="group bg-white rounded-2xl overflow-hidden border border-slate-200/60 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+        >
+          <div class="relative overflow-hidden aspect-[4/3] bg-slate-100">
+            <img
+              :src="poi.firstimage || `https://placehold.co/600x450/10b981/ffffff?text=${encodeURIComponent(poi.title)}`"
+              :alt="poi.title"
+              class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+              @error="handleImageError($event, poi.title)"
+            />
+            <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-700 shadow-sm border border-slate-100">
+              {{ contentTypeLabel(poi.contenttypeid) }}
+            </div>
+          </div>
+          <div class="p-5 flex-grow flex flex-col justify-between space-y-3">
+            <div>
+              <h3 class="font-bold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-1" :title="poi.title">{{ poi.title }}</h3>
+              <p class="text-slate-500 text-xs mt-1.5 flex items-center">
+                <i class="fa-solid fa-location-dot mr-1.5 text-slate-400"></i> <span class="truncate">{{ poi.addr1 || '상세주소 확인중' }}</span>
+              </p>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-xs text-slate-400">ID: {{ poi.contentid }}</span>
+              <button @click="askAIAboutPoi(poi)" class="text-xs text-emerald-600 font-bold hover:underline flex items-center">
+                AI에 질문 <i class="fa-solid fa-chevron-right ml-1 text-[9px]"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 최근 게시글 -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/60 shadow-sm space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-slate-900">💬 실시간 익명 최근 글</h2>
+          <p class="text-slate-500 text-xs">최근에 주민들이 나눈 생생한 이야기</p>
+        </div>
+        <RouterLink to="/board" class="text-xs text-emerald-600 hover:text-emerald-700 font-bold flex items-center space-x-1 hover:underline">
+          <span>전체 소통방 가기</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        </RouterLink>
+      </div>
+
+      <div v-if="posts.length > 0" class="divide-y divide-slate-100">
+        <RouterLink
+          v-for="post in posts"
+          :key="post.id"
+          :to="`/board/${post.id}`"
+          class="py-4 hover:bg-slate-50/50 px-2 rounded-xl transition-all cursor-pointer flex justify-between items-center group"
+        >
+          <div class="space-y-1 max-w-[70%]">
+            <span class="text-sm font-semibold text-slate-950 group-hover:text-emerald-600 transition-colors truncate block">{{ post.title }}</span>
+            <div class="flex items-center space-x-3 text-xs text-slate-400">
+              <span><i class="fa-solid fa-user-secret mr-1"></i> {{ post.author }}</span>
+              <span><i class="fa-solid fa-clock mr-1"></i> {{ post.date }}</span>
+            </div>
+          </div>
+          <span class="text-xs text-slate-400 bg-slate-100 px-2.5 py-1.5 rounded-lg group-hover:bg-emerald-50 group-hover:text-emerald-700 transition-colors">
+            <i class="fa-regular fa-comment-dots"></i> 보기
+          </span>
+        </RouterLink>
+      </div>
+      <div v-else class="text-center py-10 space-y-3">
+        <div class="text-slate-300 text-4xl"><i class="fa-regular fa-comment-dots"></i></div>
+        <p class="text-slate-400 text-sm">아직 등록된 게시물이 없습니다. 첫 이야기를 들려주세요!</p>
+      </div>
+    </div>
+
+    <!-- 오늘의 날씨 (선택기능 요약, 상세는 /weather) -->
+    <RouterLink
+      to="/weather"
+      class="block bg-white rounded-3xl p-6 border border-slate-200/60 shadow-sm hover:shadow-lg transition-all"
+    >
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="text-3xl">{{ weather?.weatherEmoji ?? '⛅' }}</div>
+          <div>
+            <p class="text-sm font-bold text-slate-900">오늘의 구미·경북 날씨</p>
+            <p class="text-xs text-slate-500">
+              {{ weather ? `${weather.temperature}℃ · ${weather.weatherLabel} · ${weather.suitability.label}` : '날씨 정보를 불러오는 중...' }}
+            </p>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-right text-slate-300"></i>
+      </div>
+    </RouterLink>
+  </div>
 </template>
-
-<style scoped>
-.hero {
-  background: linear-gradient(180deg, var(--color-river) 0%, var(--color-river-dark) 100%);
-  color: #fff;
-  padding: 56px 0 0;
-}
-.hero-inner {
-  text-align: center;
-  padding-bottom: 40px;
-}
-.eyebrow {
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  opacity: 0.8;
-  margin-bottom: 8px;
-}
-.hero h1 {
-  color: #fff;
-  font-size: 32px;
-}
-.lead {
-  opacity: 0.9;
-  margin: 0;
-}
-.hero-wave {
-  color: var(--color-paper);
-  display: block;
-}
-
-.two-col {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 20px;
-  margin: 40px auto 60px;
-}
-@media (max-width: 720px) {
-  .two-col { grid-template-columns: 1fr; }
-}
-
-.card {
-  padding: 20px;
-}
-.recent-posts ul {
-  list-style: none;
-  margin: 0 0 16px;
-  padding: 0;
-}
-.recent-posts li {
-  padding: 10px 0;
-  border-bottom: 1px solid var(--color-line);
-  font-size: 14px;
-}
-.recent-posts li:last-child { border-bottom: none; }
-.tag {
-  font-size: 11px;
-  color: var(--color-river);
-  border: 1px solid var(--color-river);
-  border-radius: 999px;
-  padding: 1px 8px;
-  margin-right: 8px;
-}
-.empty {
-  color: var(--color-ink-soft);
-  font-size: 13px;
-}
-.write-btn {
-  width: 100%;
-}
-
-.weather-main {
-  font-size: 28px;
-  margin: 0;
-}
-.weather-sub {
-  color: var(--color-ink-soft);
-  font-size: 13px;
-  margin: 2px 0 10px;
-}
-.weather-reason {
-  font-size: 13px;
-  color: var(--color-ink-soft);
-  margin: 8px 0 16px;
-}
-</style>

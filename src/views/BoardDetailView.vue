@@ -1,138 +1,88 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useRoute, useRouter, RouterLink } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import * as boardService from '@/services/boardService'
-import { BOARD_CATEGORIES } from '@/services/boardService'
+import { useToastStore } from '@/stores/toast'
 import PasswordModal from '@/components/board/PasswordModal.vue'
 
 const route = useRoute()
 const router = useRouter()
+const toast = useToastStore()
 
 const post = ref(null)
 const notFound = ref(false)
-const modalMode = ref(null) // 'edit' | 'delete' | null
-const modalError = ref('')
-
-function categoryLabel(code) {
-  return BOARD_CATEGORIES.find((c) => c.code === code)?.label ?? code
-}
-
-function formatDate(ts) {
-  return new Date(ts).toLocaleString('ko-KR')
-}
+const authModal = ref({ show: false, type: '' })
 
 function load() {
-  post.value = boardService.getPost(route.params.id)
+  const id = Number(route.params.id)
+  post.value = boardService.getPost(id)
   notFound.value = !post.value
 }
-
 onMounted(load)
 
-function openModal(mode) {
-  modalError.value = ''
-  modalMode.value = mode
+function promptAuthModal(type) {
+  authModal.value = { show: true, type }
 }
 
-function handleConfirm(password) {
-  if (modalMode.value === 'edit') {
-    if (!boardService.verifyPassword(post.value.id, password)) {
-      modalError.value = '비밀번호가 일치하지 않습니다.'
-      return
-    }
+function authorizeAndExecute(password) {
+  if (!boardService.verifyPassword(post.value.id, password)) {
+    toast.trigger('비밀번호가 불일치하여 승인되지 못했습니다.', false)
+    return
+  }
+  const type = authModal.value.type
+  authModal.value.show = false
+
+  if (type === 'edit') {
     router.push({ name: 'board-edit', params: { id: post.value.id }, query: { pw: password } })
-  } else if (modalMode.value === 'delete') {
-    try {
-      boardService.deletePost(post.value.id, password)
-      router.push('/board')
-    } catch (e) {
-      modalError.value = e.message
-    }
+  } else if (type === 'delete') {
+    boardService.deletePost(post.value.id)
+    toast.trigger('글이 정상적으로 파기되었습니다.', true)
+    router.push('/board')
   }
 }
 </script>
 
 <template>
-  <section class="container detail">
-    <template v-if="notFound">
-      <p class="empty">게시글을 찾을 수 없습니다. 삭제되었거나 다른 브라우저에서 작성된 글일 수 있어요.</p>
-      <RouterLink to="/board" class="btn btn-ghost">목록으로</RouterLink>
-    </template>
+  <div v-if="notFound" class="max-w-3xl mx-auto bg-white rounded-3xl border border-slate-200/60 shadow-md p-10 text-center space-y-4">
+    <p class="text-slate-400">게시글을 찾을 수 없습니다. 삭제되었거나 다른 브라우저에서 작성된 글일 수 있어요.</p>
+    <RouterLink to="/board" class="inline-block bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2.5 rounded-2xl text-xs">목록으로</RouterLink>
+  </div>
 
-    <template v-else-if="post">
-      <p class="breadcrumb">홈 &gt; 게시판 &gt; 게시글 상세</p>
-      <span class="tag">{{ categoryLabel(post.category) }}</span>
-      <h1>{{ post.title }}</h1>
-      <p class="meta">작성일: {{ formatDate(post.createdAt) }} · 조회 {{ post.views }} · {{ post.nickname }}</p>
-
-      <div class="card content">{{ post.content }}</div>
-
-      <div class="actions">
-        <RouterLink to="/board" class="btn btn-ghost">목록으로</RouterLink>
-        <div class="right">
-          <button class="btn btn-primary" @click="openModal('edit')">수정</button>
-          <button class="btn btn-danger" @click="openModal('delete')">삭제</button>
+  <div v-else-if="post" class="max-w-3xl mx-auto bg-white rounded-3xl border border-slate-200/60 shadow-md overflow-hidden">
+    <div class="p-6 sm:p-8 space-y-6">
+      <div class="border-b border-slate-100 pb-5 space-y-3">
+        <div class="flex items-center space-x-2">
+          <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-2.5 py-1 rounded-full border border-emerald-100">구미·경북 소통망</span>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-900 tracking-tight leading-tight">{{ post.title }}</h2>
+        <div class="flex flex-wrap items-center gap-4 text-xs text-slate-400 pt-1">
+          <span><i class="fa-solid fa-user-secret mr-1 text-slate-300"></i> 익명: {{ post.author }}</span>
+          <span><i class="fa-solid fa-clock mr-1 text-slate-300"></i> {{ post.date }}</span>
         </div>
       </div>
-    </template>
 
-    <PasswordModal
-      v-if="modalMode"
-      :title="modalMode === 'edit' ? '수정하려면 비밀번호를 입력하세요' : '삭제하려면 비밀번호를 입력하세요'"
-      @confirm="handleConfirm"
-      @cancel="modalMode = null"
-    />
-    <p v-if="modalError" class="modal-error">{{ modalError }}</p>
-  </section>
+      <div class="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap min-h-[180px]">{{ post.content }}</div>
+
+      <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <RouterLink to="/board" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4.5 py-2.5 rounded-2xl text-xs transition-colors flex items-center justify-center space-x-1">
+          <i class="fa-solid fa-list"></i> <span>목록으로</span>
+        </RouterLink>
+        <div class="flex space-x-2">
+          <button @click="promptAuthModal('edit')" class="bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold px-4 py-2.5 rounded-xl text-xs transition-colors flex items-center justify-center space-x-1">
+            <i class="fa-solid fa-pen"></i> <span>수정</span>
+          </button>
+          <button @click="promptAuthModal('delete')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-4 py-2.5 rounded-xl text-xs transition-colors flex items-center justify-center space-x-1">
+            <i class="fa-solid fa-trash"></i> <span>삭제</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <PasswordModal
+    v-if="authModal.show"
+    :title="authModal.type === 'edit' ? '수정을 위한 비밀번호 확인' : '삭제를 위한 비밀번호 확인'"
+    @confirm="authorizeAndExecute"
+    @cancel="authModal.show = false"
+  />
 </template>
-
-<style scoped>
-.detail {
-  padding: 24px 20px 60px;
-  max-width: 760px;
-}
-.breadcrumb {
-  font-size: 12px;
-  color: var(--color-ink-soft);
-  margin: 0 0 8px;
-}
-.tag {
-  font-size: 11px;
-  color: var(--color-river);
-  border: 1px solid var(--color-river);
-  border-radius: 999px;
-  padding: 2px 10px;
-}
-h1 {
-  margin: 10px 0 4px;
-  font-size: 22px;
-}
-.meta {
-  font-size: 12px;
-  color: var(--color-ink-soft);
-  margin: 0 0 16px;
-}
-.content {
-  padding: 20px;
-  min-height: 160px;
-  white-space: pre-wrap;
-  font-size: 15px;
-  line-height: 1.8;
-}
-.actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 16px;
-}
-.right {
-  display: flex;
-  gap: 8px;
-}
-.empty {
-  color: var(--color-ink-soft);
-  margin-bottom: 16px;
-}
-.modal-error {
-  color: var(--color-bad);
-  font-size: 12px;
-}
-</style>

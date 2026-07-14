@@ -1,11 +1,16 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { fetchCurrentWeather } from '@/services/weatherService'
-import { SELECTED_REGION_LABEL } from '@/constants/contentType'
 
 const weather = ref(null)
 const error = ref('')
 const loading = ref(true)
+
+const badgeClass = {
+  good: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+  caution: 'bg-amber-50 text-amber-700 border-amber-100',
+  bad: 'bg-rose-50 text-rose-700 border-rose-100',
+}
 
 onMounted(async () => {
   try {
@@ -19,58 +24,29 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="container weather-view">
-    <p class="breadcrumb">홈 &gt; 날씨</p>
-    <h1>{{ SELECTED_REGION_LABEL }} 여행 날씨</h1>
+  <div class="max-w-lg mx-auto space-y-4">
+    <div>
+      <h2 class="text-2xl font-bold tracking-tight text-slate-900">🌦️ 구미·경북 여행 날씨</h2>
+      <p class="text-slate-500 text-sm">Open-Meteo 기반 실시간 날씨와 여행 적합도를 확인하세요.</p>
+    </div>
 
-    <div v-if="loading" class="card empty">날씨 정보를 불러오는 중...</div>
-    <div v-else-if="error" class="card empty">{{ error }}</div>
-    <div v-else class="card weather-card">
-      <p class="big">{{ weather.weatherEmoji }} {{ weather.temperature }}℃</p>
-      <p class="sub">{{ weather.weatherLabel }} · 풍속 {{ weather.windSpeed }}km/h · 강수량 {{ weather.precipitation }}mm</p>
-      <span class="badge" :class="`badge-${weather.suitability.level}`">
+    <div v-if="loading" class="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-10 text-center text-slate-400">
+      날씨 정보를 불러오는 중...
+    </div>
+    <div v-else-if="error" class="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-10 text-center text-rose-500">
+      {{ error }}
+    </div>
+    <div v-else class="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-8 text-center space-y-3">
+      <p class="text-5xl">{{ weather.weatherEmoji }}</p>
+      <p class="text-4xl font-black text-slate-900">{{ weather.temperature }}℃</p>
+      <p class="text-slate-500 text-sm">
+        {{ weather.weatherLabel }} · 풍속 {{ weather.windSpeed }}km/h · 강수량 {{ weather.precipitation }}mm
+      </p>
+      <span :class="['inline-block text-xs font-bold px-3 py-1 rounded-full border', badgeClass[weather.suitability.level]]">
         {{ weather.suitability.label }}
       </span>
-      <p class="reason">{{ weather.suitability.reason }}</p>
-      <p class="source">기준 시각: {{ weather.observedAt }} · 출처: {{ weather.source }}</p>
+      <p class="text-sm text-slate-600 pt-2">{{ weather.suitability.reason }}</p>
+      <p class="text-[11px] text-slate-400 pt-3">기준 시각: {{ weather.observedAt }} · 출처: {{ weather.source }}</p>
     </div>
-  </section>
+  </div>
 </template>
-
-<style scoped>
-.weather-view {
-  padding: 24px 20px 60px;
-  max-width: 520px;
-}
-.breadcrumb {
-  font-size: 12px;
-  color: var(--color-ink-soft);
-  margin: 0 0 8px;
-}
-.weather-card {
-  padding: 28px;
-  text-align: center;
-}
-.big {
-  font-size: 40px;
-  margin: 0;
-}
-.sub {
-  color: var(--color-ink-soft);
-  font-size: 14px;
-  margin: 6px 0 16px;
-}
-.reason {
-  font-size: 14px;
-  margin: 12px 0 20px;
-}
-.source {
-  font-size: 11px;
-  color: var(--color-ink-soft);
-}
-.empty {
-  padding: 40px;
-  text-align: center;
-  color: var(--color-ink-soft);
-}
-</style>

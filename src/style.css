@@ -1,182 +1,33 @@
-/* ------------------------------------------------------------------
-   LocalHub 디자인 토큰
-   컨셉: 구미/경북 — 낙동강(강물의 블루)과 금오산 노을,
-         지역 특산물(성주 참외·감)의 온기를 더한 "지역 신문/게시판" 톤
-------------------------------------------------------------------- */
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+@import "tailwindcss";
 
-:root {
-  /* Color */
-  --color-river: #1f4e5f;      /* 낙동강 블루 - primary */
-  --color-river-dark: #163b48;
-  --color-sunset: #e2793f;     /* 금오산 노을 - accent */
-  --color-melon: #f2b705;      /* 성주 참외 - highlight */
-  --color-paper: #faf7f2;      /* 배경 */
-  --color-paper-dim: #f1ece2;
-  --color-ink: #22282b;        /* 본문 텍스트 */
-  --color-ink-soft: #5b6468;
-  --color-line: #e3ddd0;
-  --color-good: #2f7d5c;
-  --color-caution: #c98a1a;
-  --color-bad: #c1443c;
-
-  /* Type */
-  --font-display: 'Noto Serif KR', serif;
-  --font-body: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
-
-  /* Layout */
-  --radius: 10px;
-  --shadow-1: 0 1px 2px rgba(31, 78, 95, 0.08), 0 4px 12px rgba(31, 78, 95, 0.06);
-  --max-width: 1080px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
+/* teamproject.html 프로토타입과 동일한 폰트/스크롤바 처리 */
 body {
-  margin: 0;
-  padding: 0;
+  font-family: 'Inter', 'Noto Sans KR', sans-serif;
 }
 
-body {
-  font-family: var(--font-body);
-  background: var(--color-paper);
-  color: var(--color-ink);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
-#app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+/* 토스트 슬라이드 트랜지션 (teamproject.html의 toast-slide와 동일) */
+.toast-slide-enter-active,
+.toast-slide-leave-active {
+  transition: all 0.3s ease;
 }
-
-h1, h2, h3, h4 {
-  font-family: var(--font-display);
-  color: var(--color-river-dark);
-  margin: 0 0 0.5em;
-  line-height: 1.3;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button {
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.container {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 18px;
-  border-radius: var(--radius);
-  border: 1px solid transparent;
-  font-size: 14px;
-  font-weight: 600;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-}
-.btn:active { transform: translateY(1px); }
-
-.btn-primary {
-  background: var(--color-river);
-  color: #fff;
-}
-.btn-primary:hover { background: var(--color-river-dark); }
-
-.btn-accent {
-  background: var(--color-sunset);
-  color: #fff;
-}
-.btn-accent:hover { filter: brightness(0.95); }
-
-.btn-ghost {
-  background: transparent;
-  border-color: var(--color-line);
-  color: var(--color-ink-soft);
-}
-.btn-ghost:hover { border-color: var(--color-river); color: var(--color-river); }
-
-.btn-danger {
-  background: #fff;
-  border-color: var(--color-bad);
-  color: var(--color-bad);
-}
-
-/* Card */
-.card {
-  background: #fff;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-1);
-}
-
-/* Form */
-.field { margin-bottom: 16px; }
-.field label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-ink-soft);
-  margin-bottom: 6px;
-}
-.field input[type="text"],
-.field input[type="password"],
-.field textarea,
-.field select {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--color-line);
-  border-radius: 8px;
-  font-family: inherit;
-  font-size: 14px;
-  background: #fff;
-  color: var(--color-ink);
-}
-.field input:focus,
-.field textarea:focus,
-.field select:focus {
-  outline: 2px solid var(--color-river);
-  outline-offset: 1px;
-  border-color: var(--color-river);
-}
-
-/* Signature element: 낙동강 물결 디바이더 */
-.river-divider {
-  display: block;
-  width: 100%;
-  height: 28px;
-  color: var(--color-river);
-}
-
-.badge {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.badge-good { background: #e6f4ee; color: var(--color-good); }
-.badge-caution { background: #fbf0dc; color: var(--color-caution); }
-.badge-bad { background: #fbe8e6; color: var(--color-bad); }
-
-::selection {
-  background: var(--color-melon);
-  color: var(--color-ink);
+.toast-slide-enter-from,
+.toast-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -6,36 +6,16 @@ defineProps({
 </script>
 
 <template>
-  <div class="msg-row" :class="role">
-    <p class="bubble">{{ content }}</p>
+  <div :class="['flex', role === 'user' ? 'justify-end' : 'justify-start']">
+    <div
+      :class="[
+        'max-w-[80%] p-3.5 rounded-2xl text-xs leading-relaxed shadow-sm',
+        role === 'user'
+          ? 'bg-emerald-600 text-white rounded-br-none'
+          : 'bg-white text-slate-800 border border-slate-200/60 rounded-bl-none',
+      ]"
+    >
+      <p class="whitespace-pre-line">{{ content }}</p>
+    </div>
   </div>
 </template>
-
-<style scoped>
-.msg-row {
-  display: flex;
-  margin-bottom: 10px;
-}
-.msg-row.user {
-  justify-content: flex-end;
-}
-.bubble {
-  max-width: 80%;
-  padding: 10px 14px;
-  border-radius: 14px;
-  font-size: 13px;
-  white-space: pre-wrap;
-  margin: 0;
-  line-height: 1.5;
-}
-.msg-row.assistant .bubble {
-  background: var(--color-paper-dim);
-  color: var(--color-ink);
-  border-bottom-left-radius: 4px;
-}
-.msg-row.user .bubble {
-  background: var(--color-river);
-  color: #fff;
-  border-bottom-right-radius: 4px;
-}
-</style>

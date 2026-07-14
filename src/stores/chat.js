@@ -10,6 +10,7 @@ const WELCOME_MESSAGE = {
 export const useChatStore = defineStore('chat', {
   state: () => ({
     isOpen: false,
+    isFullscreen: false,
     messages: [WELCOME_MESSAGE],
     loading: false,
     error: null,
@@ -17,6 +18,18 @@ export const useChatStore = defineStore('chat', {
   actions: {
     toggle() {
       this.isOpen = !this.isOpen
+    },
+    open() {
+      this.isOpen = true
+    },
+    toggleFullscreen() {
+      this.isFullscreen = !this.isFullscreen
+    },
+    /** 홈 화면 명소 카드의 "AI에 질문" 버튼 — teamproject.html의 askAIAboitPoi 대응 */
+    askAboutPoi(poi) {
+      this.isOpen = true
+      const question = `'${poi.title}'(소재지: ${poi.addr1 || '주소 정보 없음'})에 대해 소개해 주고, 이 주변에 가볼 만한 코스도 같이 알려줘!`
+      this.send(question)
     },
     async send(question) {
       if (!question?.trim()) return
