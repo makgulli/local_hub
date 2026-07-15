@@ -34,10 +34,16 @@ const routes = [
     component: () => import('@/views/WeatherView.vue'),
   },
   {
+  path: '/category/:slug',
+  name: 'category',
+  component: () => import('@/views/CategoryView.vue'),
+  }, 
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/views/NotFoundView.vue'),
   },
+  
 ]
 
 const router = createRouter({

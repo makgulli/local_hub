@@ -27,6 +27,10 @@ const DATA_FILES = {
   '39': '구미_경북권_음식점.json',
 }
 
+const category = {
+  slug: 'sports', label:'레포츠', fileName: '구미_경북권_레포츠.json'
+}
+
 const BASE_URL = `${import.meta.env.BASE_URL}data/`
 
 /** contentTypeId 별 fetch 결과 캐시 (SPA 세션 동안 재요청 방지) */
