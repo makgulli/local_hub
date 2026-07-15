@@ -27,9 +27,16 @@ const DATA_FILES = {
   '39': '구미_경북권_음식점.json',
 }
 
-const category = {
-  slug: 'sports', label:'레포츠', fileName: '구미_경북권_레포츠.json'
-}
+export const CATEGORY_CONFIG = [
+  { slug: 'tourism', label: '관광지', icon: 'fa-map-location-dot', contentTypeId: '12' },
+  { slug: 'culture', label: '문화시설', icon: 'fa-landmark', contentTypeId: '14' },
+  { slug: 'festival', label: '축제/행사', icon: 'fa-champagne-glasses', contentTypeId: '15' },
+  { slug: 'course', label: '여행코스', icon: 'fa-route', contentTypeId: '25' },
+  { slug: 'sports', label: '레포츠', icon: 'fa-person-running', contentTypeId: '28' },
+  { slug: 'lodging', label: '숙박', icon: 'fa-bed', contentTypeId: '32' },
+  { slug: 'shopping', label: '쇼핑', icon: 'fa-bag-shopping', contentTypeId: '38' },
+  { slug: 'food', label: '음식점', icon: 'fa-utensils', contentTypeId: '39' },
+]
 
 const BASE_URL = `${import.meta.env.BASE_URL}data/`
 
