@@ -1,13 +1,15 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { loadContentType } from '@/services/dataService'
+import { loadContentType, CATEGORY_CONFIG } from '@/services/dataService'
 import { recentPosts } from '@/services/boardService'
 import { useChatStore } from '@/stores/chat'
 import { fetchCurrentWeather } from '@/services/weatherService'
 import { contentTypeLabel } from '@/constants/contentType'
 
 const chat = useChatStore()
+
+const categories = CATEGORY_CONFIG
 
 const tourData = ref([])
 const posts = ref([])
@@ -60,13 +62,15 @@ onMounted(async () => {
             <i class="fa-solid fa-star mr-2"></i>인플루트 추천 보기
           </RouterLink>
         </div>
-          <div class="mt-6">
-              <RouterLink
-              to="/category/sports"
-            class="inline-flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald700 hover:bg-emerald-100"
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <RouterLink
+            v-for="category in categories"
+            :key="category.slug"
+            :to="`/category/${category.slug}`"
+            class="bg-white/10 hover:bg-white/15 rounded-2xl p-4 border border-white/10 backdrop-blur transition-colors flex items-center gap-2 text-sm font-medium"
           >
-              <i class="fa-solid fa-person-running"></i>
-                  레포츠 보기
+            <i :class="['fa-solid', category.icon]"></i>
+            {{ category.label }}
           </RouterLink>
         </div>
       </div>

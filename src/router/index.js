@@ -42,7 +42,7 @@ const routes = [
   path: '/category/:slug',
   name: 'category',
   component: () => import('@/views/CategoryView.vue'),
-  }, 
+  },
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
