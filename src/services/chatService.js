@@ -62,12 +62,10 @@ async function buildContext(question) {
     .join('\n')
 }
 
-const SYSTEM_PROMPT = `당신은 지역 정보 공유 커뮤니티 "LocalHub"의 챗봇입니다.
-대상 권역은 "${SELECTED_REGION_LABEL}"이며, 한국관광공사 TourAPI 데이터를 기반으로
-관광지 추천, 축제 일정, 맛집(모범음식점) 위치, 숙박, 쇼핑, 레포츠, 여행코스 등을 안내합니다.
-아래 [참고 데이터]에 있는 내용을 우선 활용해 답하고, 참고 데이터에 없는 내용은
-"제공된 데이터에는 없는 정보"라고 솔직히 밝힌 뒤 일반적인 안내만 제공하세요.
-답변은 한국어로, 간결하고 친절하게 작성하세요.`
+const SYSTEM_PROMPT = `
+당신은 구미·경북 관광 안내 챗봇입니다.
+짧고 친절한 한국어로 답하세요.
+`
 
 /**
  * 챗봇 응답을 생성한다.
@@ -75,33 +73,85 @@ const SYSTEM_PROMPT = `당신은 지역 정보 공유 커뮤니티 "LocalHub"의
  * @param {{role:'user'|'assistant', content:string}[]} history 이전 대화 이력 (대화 히스토리 유지용)
  */
 export async function askChatbot(question, history = []) {
-  const apiKey = getApiKey()
-  const context = await buildContext(question)
+  try {
+    const apiKey = getApiKey()
+    const context = await buildContext(question)
 
-  const messages = [
-    { role: 'system', content: `${SYSTEM_PROMPT}\n\n[참고 데이터]\n${context}` },
-    ...history.slice(-6), // 최근 6턴만 유지 (토큰 절약)
-    { role: 'user', content: question },
-  ]
+    const messages = [
+      { role: 'system', content: `${SYSTEM_PROMPT}\n\n[참고 데이터]\n${context}` },
+      ...history.slice(-6),
+      { role: 'user', content: question },
+    ]
 
-  const res = await fetch(OPENAI_CHAT_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages,
-      max_completion_tokens: 500,
-    }),
-  })
+    const res = await fetch(OPENAI_CHAT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+ body: JSON.stringify({
+  model: MODEL,
+  messages,
+  max_completion_tokens: 600,      // 100 → 600 (추론+답변 합산 예산)
+  reasoning_effort: 'low',         // gpt-5 계열 추론 모델의 내부 추론량 축소 옵션
+}),
 
-  if (!res.ok) {
-    const errBody = await res.json().catch(() => ({}))
-    throw new Error(errBody?.error?.message || `챗봇 API 호출 실패 (${res.status})`)
+    })
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}))
+      throw new Error(
+        `API 오류 (${res.status}): ${errBody?.error?.message || '알 수 없는 오류'}`
+      )
+    }
+
+    const data = await res.json()
+const choice = data?.choices?.[0]
+
+if (choice?.finish_reason === 'length' && !choice?.message?.content) {
+  throw new Error(
+    '모델이 추론 토큰을 모두 소진해 답변을 생성하지 못했습니다. max_completion_tokens 값을 늘려주세요.'
+  )
+}
+
+if (!choice?.message?.content) {
+  throw new Error(`응답 포맷이 비정상입니다: ${JSON.stringify(data).slice(0, 500)}`)
+}
+
+
+    const text = normalizeResponseContent(data.choices[0].message.content)
+
+    if (!text) {
+      throw new Error(`응답 텍스트가 비어 있습니다: ${JSON.stringify(data).slice(0, 500)}`)
+    }
+
+    return text
+  } catch (e) {
+    console.error('[chatService] askChatbot error:', e)
+    throw new Error(e?.message || '챗봇 응답 생성 중 오류가 발생했습니다.')
+  }
+}
+
+function normalizeResponseContent(content) {
+  if (typeof content === 'string') return content.trim()
+
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => {
+        if (typeof part === 'string') return part
+        if (part?.type === 'text' && typeof part.text === 'string') return part.text
+        return ''
+      })
+      .join('')
+      .trim()
   }
 
-  const data = await res.json()
-  return data.choices?.[0]?.message?.content?.trim() ?? '응답을 생성하지 못했습니다.'
+  if (content && typeof content === 'object') {
+    if (typeof content.text === 'string') return content.text.trim()
+    if (typeof content.value === 'string') return content.value.trim()
+  }
+
+  return ''
 }
+
+

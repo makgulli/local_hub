@@ -5,22 +5,35 @@ import ChatMessage from './ChatMessage.vue'
 
 const store = useChatStore()
 const input = ref('')
+const inputRef = ref(null)
 const chatScrollContainer = ref(null)
 
 function scrollToBottom() {
   const el = chatScrollContainer.value
-  if (el) el.scrollTop = el.scrollHeight
+  if (el) {
+    el.scrollTop = el.scrollHeight
+  }
+}
+
+function focusInput() {
+  nextTick(() => {
+    inputRef.value?.focus()
+  })
 }
 
 async function sendChatMessage() {
   const q = input.value
   if (!q.trim() || store.loading) return
+
   input.value = ''
   await nextTick()
   scrollToBottom()
+
   await store.send(q)
+
   await nextTick()
   scrollToBottom()
+  focusInput()
 }
 
 watch(
@@ -29,7 +42,16 @@ watch(
     if (open) {
       await nextTick()
       scrollToBottom()
+      focusInput()
     }
+  }
+)
+
+watch(
+  () => store.messages.length,
+  async () => {
+    await nextTick()
+    scrollToBottom()
   }
 )
 </script>
@@ -90,12 +112,13 @@ watch(
       <!-- Chatbot Input Form -->
       <form @submit.prevent="sendChatMessage" class="p-3 border-t border-slate-200/80 bg-white flex items-center gap-2">
         <input
-          v-model="input"
-          type="text"
-          placeholder="예: 구미 금오산 근처 맛집 추천해줘"
-          :disabled="store.loading"
-          class="flex-grow border border-slate-200 rounded-2xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-        />
+  ref="inputRef"
+  v-model="input"
+  type="text"
+  placeholder="예: 구미 금오산 근처 맛집 추천해줘"
+  :disabled="store.loading"
+  class="flex-grow border border-slate-200 rounded-2xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+/>
         <button
           type="submit"
           :disabled="store.loading || !input.trim()"
