@@ -62,7 +62,7 @@ watch(
     <button
       v-if="!store.isOpen"
       @click="store.toggle"
-      class="bg-emerald-600 hover:bg-emerald-500 text-white p-4.5 rounded-full shadow-2xl transition-all hover:scale-105 flex items-center justify-center w-14 h-14 relative group"
+      class="bg-[#FF6467] hover:bg-[#E53B47] text-white p-4.5 rounded-full shadow-2xl shadow-[#FF6467]/30 transition-all hover:scale-105 flex items-center justify-center w-14 h-14 relative group"
       aria-label="AI 가이드 호출"
     >
       <i class="fa-solid fa-robot text-lg"></i>
@@ -78,21 +78,21 @@ watch(
       :class="{ 'w-full h-full max-h-none bottom-0 right-0 rounded-none z-50': store.isFullscreen }"
     >
       <!-- Chat Window Header -->
-      <div class="bg-emerald-600 text-white px-5 py-4 flex justify-between items-center shadow-md">
+      <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-zinc-950 text-white px-5 py-4 flex justify-between items-center shadow-md border-b border-white/10">
         <div class="flex items-center space-x-3">
           <div class="bg-white/10 p-2 rounded-xl text-white">
             <i class="fa-solid fa-robot"></i>
           </div>
           <div>
             <h4 class="font-bold text-xs sm:text-sm">LocalHub 구미·경북 도우미</h4>
-            <p class="text-[10px] text-emerald-200">제공 데이터 기반 실시간 어시스턴트</p>
+            <p class="text-[10px] text-slate-300">제공 데이터 기반 실시간 어시스턴트</p>
           </div>
         </div>
         <div class="flex items-center space-x-3">
-          <button @click="store.toggleFullscreen" class="text-emerald-100 hover:text-white text-xs hidden sm:block" aria-label="화면 크기 전환">
+          <button @click="store.toggleFullscreen" class="text-slate-300 hover:text-white text-xs hidden sm:block" aria-label="화면 크기 전환">
             <i :class="store.isFullscreen ? 'fa-solid fa-minimize' : 'fa-solid fa-maximize'"></i>
           </button>
-          <button @click="store.toggle" class="text-emerald-100 hover:text-white text-lg font-bold" aria-label="닫기">×</button>
+          <button @click="store.toggle" class="text-slate-300 hover:text-white text-lg font-bold" aria-label="닫기">×</button>
         </div>
       </div>
 
@@ -117,12 +117,12 @@ watch(
   type="text"
   placeholder="예: 구미 금오산 근처 맛집 추천해줘"
   :disabled="store.loading"
-  class="flex-grow border border-slate-200 rounded-2xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+  class="flex-grow border border-slate-200 rounded-2xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[#FF6467]/20 focus:border-[#FF6467] transition-all"
 />
         <button
           type="submit"
           :disabled="store.loading || !input.trim()"
-          class="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-300 text-white p-2.5 rounded-2xl transition-colors flex items-center justify-center"
+          class="bg-[#FF6467] hover:bg-[#E53B47] disabled:bg-slate-300 text-white p-2.5 rounded-2xl transition-colors flex items-center justify-center"
         >
           <i class="fa-solid fa-paper-plane text-xs"></i>
         </button>

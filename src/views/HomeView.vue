@@ -170,7 +170,6 @@ async function selectCategory(contentTypeId) {
             <span class="inline-block w-2.5 h-6 bg-gradient-to-b from-red-500 to-blue-600 rounded-full"></span>
             구미·경북 명소 가이드
           </h2>
-          <p class="text-slate-500 text-sm">한국관광공사 TourAPI 4.0 연동 기반의 로컬 핫플레이스</p>
         </div>
         <div class="flex items-center space-x-2">
           <span class="text-xs font-semibold text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1 rounded-md">공공 데이터</span>

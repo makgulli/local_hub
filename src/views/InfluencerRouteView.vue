@@ -48,15 +48,15 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-10">
-    <section class="rounded-3xl bg-gradient-to-r from-emerald-600 via-slate-900 to-emerald-700 text-white p-8 shadow-2xl">
+    <section class="rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-950 text-white p-8 shadow-2xl border border-slate-800">
       <div class="max-w-4xl space-y-4">
-        <p class="text-xs uppercase tracking-[0.3em] text-emerald-200">인플루트</p>
-        <h1 class="text-3xl sm:text-4xl font-black tracking-tight">인플루언서 추천으로 바로 떠나는 여행 루트</h1>
-        <p class="max-w-2xl text-slate-100 leading-relaxed">
-          실제 인플루언서가 추천한 구미·경북권 여행 코스를 모아봤습니다. 검색, 태그 필터, 평점 정렬로 당신에게 딱 맞는 루트를 빠르게 찾을 수 있어요.
+        <p class="text-xs uppercase tracking-[0.3em] text-[#FF6467]">인플루트</p>
+        <h1 class="text-3xl sm:text-4xl font-black tracking-tight">인플루언서 여행 루트!! </h1>
+        <p class="max-w-2xl leading-relaxed text-[#FF6467]">
+          실제 인플루언서의 루트를 따라가다! 구미·경북권 여행 코스에 여러분을 초대해야호~
         </p>
         <div class="flex flex-wrap gap-3">
-          <RouterLink to="/" class="inline-flex items-center gap-2 rounded-2xl bg-white/10 border border-white/20 px-5 py-3 text-sm font-semibold hover:bg-white/20 transition">
+          <RouterLink to="/" class="inline-flex items-center gap-2 rounded-2xl bg-white/10 border border-white/20 px-5 py-3 text-sm font-semibold hover:bg-white/15 transition">
             <i class="fa-solid fa-arrow-left"></i> 홈으로 돌아가기
           </RouterLink>
         </div>
@@ -76,10 +76,10 @@ onMounted(async () => {
               v-model="searchQuery"
               type="search"
               placeholder="검색어를 입력해보세요 (카페, 맛집, 자연 등)"
-              class="w-full sm:w-72 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+              class="w-full sm:w-72 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#FF6467]/20 focus:border-[#FF6467]"
             />
           </label>
-          <select v-model="sortOrder" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-400">
+          <select v-model="sortOrder" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#FF6467]/20 focus:border-[#FF6467]">
             <option value="desc">평점 높은 순</option>
             <option value="asc">평점 낮은 순</option>
           </select>
@@ -93,7 +93,7 @@ onMounted(async () => {
         <div class="flex flex-wrap gap-3">
           <button
             @click="selectTag(tag)"
-            :class="['rounded-full border px-4 py-2 text-sm font-semibold transition', selectedTag === tag ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-50 text-slate-600 border-slate-200']"
+            :class="['rounded-full border px-4 py-2 text-sm font-semibold transition', selectedTag === tag ? 'bg-[#FF6467] text-white border-[#FF6467]' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100']"
             v-for="tag in tags"
             :key="tag"
           >
@@ -101,7 +101,7 @@ onMounted(async () => {
           </button>
           <button
             @click="selectTag('')"
-            :class="['rounded-full border px-4 py-2 text-sm font-semibold transition', selectedTag === '' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-50 text-slate-600 border-slate-200']"
+            :class="['rounded-full border px-4 py-2 text-sm font-semibold transition', selectedTag === '' ? 'bg-[#FF6467] text-white border-[#FF6467]' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100']"
           >
             전체
           </button>
