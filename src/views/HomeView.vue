@@ -15,6 +15,7 @@ const tourData = ref([])
 const posts = ref([])
 const weather = ref(null)
 const loadError = ref('')
+const loading = ref(false)
 
 function handleImageError(e, title) {
   e.target.src = `https://placehold.co/600x450/10b981/ffffff?text=${encodeURIComponent(title)}`
@@ -24,10 +25,13 @@ function askAIAboutPoi(poi) {
   chat.askAboutPoi(poi)
 }
 
+const selectedCategory = ref('12')  // ← 선택된 카테고리 추가
+
 onMounted(async () => {
   posts.value = recentPosts(3)
   try {
-    const { items } = await loadContentType('12') // 관광지
+    // 고정값 '12' 대신 selectedCategory 사용
+    const { items } = await loadContentType(selectedCategory.value)
     tourData.value = items.slice(0, 8)
   } catch (e) {
     loadError.value = e.message
@@ -35,9 +39,24 @@ onMounted(async () => {
   try {
     weather.value = await fetchCurrentWeather()
   } catch {
-    // 홈 화면에서는 날씨 실패를 조용히 무시 (상세는 /weather 에서 확인)
+    // 홈 화면에서는 날씨 실패를 조용히 무시
   }
 })
+
+// 카테고리 선택 시 데이터 새로 로드
+async function selectCategory(contentTypeId) {
+  selectedCategory.value = contentTypeId
+  loading.value = true
+  loadError.value = ''
+  try {
+    const { items } = await loadContentType(contentTypeId)
+    tourData.value = items.slice(0, 8)
+  } catch (e) {
+    loadError.value = e.message
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -81,14 +100,33 @@ onMounted(async () => {
       <div class="flex items-center justify-between">
         <div>
           <h2 class="text-2xl font-bold tracking-tight text-slate-950">✨ 구미·경북 명소 가이드</h2>
-          <p class="text-slate-500 text-sm">한국관광공사 TourAPI 4.0 연동 기반의 로컬 핫플레이스</p>
+          <p class="text-slate-500 text-sm">카테고리를 선택해 데이터를 확인하세요</p>
         </div>
         <div class="flex items-center space-x-2">
           <span class="text-xs font-semibold text-slate-400 bg-slate-100 px-2 py-1 rounded-md">공공 데이터</span>
         </div>
       </div>
 
-      <p v-if="loadError" class="text-sm text-rose-500 bg-rose-50 border border-rose-100 rounded-2xl p-4">
+      <!-- 카테고리 선택 버튼 -->
+      <div class="flex flex-wrap gap-2">
+        <button
+          v-for="cat in categories"
+          :key="cat.contentTypeId"
+          @click="selectCategory(cat.contentTypeId)"
+          :class="[
+            'px-4 py-2 rounded-2xl text-sm font-semibold transition-all',
+            selectedCategory === cat.contentTypeId
+              ? 'bg-emerald-600 text-white'
+              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          ]"
+        >
+          {{ cat.label }}
+        </button>
+      </div>
+
+      <p v-if="loading" class="text-sm text-slate-400">불러오는 중...</p>
+
+      <p v-else-if="loadError" class="text-sm text-rose-500 bg-rose-50 border border-rose-100 rounded-2xl p-4">
         {{ loadError }} — public/data 폴더에 JSON 파일이 있는지 확인해주세요.
       </p>
 

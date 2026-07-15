@@ -93,8 +93,7 @@ export async function askChatbot(question, history = []) {
     body: JSON.stringify({
       model: MODEL,
       messages,
-      temperature: 0.4,
-      max_tokens: 500,
+      max_completion_tokens: 500,
     }),
   })
 
