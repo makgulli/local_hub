@@ -23,8 +23,12 @@ function navBtnClass(isActive) {
           <i class="fa-solid fa-map-location-dot text-lg"></i>
         </div>
         <div>
-          <span class="text-xl font-extrabold tracking-tight text-slate-900">Local<span class="text-emerald-600">Hub</span></span>
-          <span class="hidden sm:inline-block ml-2 text-xs font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-100">구미·경북권</span>
+          <span class="text-xl font-extrabold tracking-tight text-slate-900">
+            구경 야호 <span class="text-emerald-600">(GUGYEONG-YAHO)</span>
+          </span>
+          <span class="hidden sm:inline-block ml-2 text-xs font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-100">
+            구미·경북권
+          </span>
         </div>
       </RouterLink>
 
