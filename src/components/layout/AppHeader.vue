@@ -35,6 +35,9 @@ function navBtnClass(isActive) {
         <RouterLink to="/board" :class="navBtnClass(isBoardActive)">
           <i class="fa-solid fa-comments mr-1.5"></i> 익명 소통망
         </RouterLink>
+        <RouterLink to="/influencer" :class="navBtnClass(route.name === 'influencer')">
+          <i class="fa-solid fa-star mr-1.5"></i> 인플루트
+        </RouterLink>
         <RouterLink to="/weather" :class="navBtnClass(route.name === 'weather')">
           <i class="fa-solid fa-cloud-sun mr-1.5"></i> 날씨
         </RouterLink>

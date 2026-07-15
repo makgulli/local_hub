@@ -1,0 +1,54 @@
+{
+  "title": "인플루트 인플루언서 추천 루트",
+  "description": "인플루언서가 추천하는 구미·경북권 하루 여행 코스를 바로 확인하세요.",
+  "routes": [
+    {
+      "id": 1,
+      "title": "감성 카페 & 힐링 산책 코스",
+      "influencer": "힐링트래블",
+      "duration": "1일",
+      "image": "https://placehold.co/800x540/10b981/ffffff?text=%EA%B0%90%EC%84%B1+%EC%BB%A4%ED%8E%98",
+      "description": "카페와 강변 산책을 좋아하는 여행자를 위한 추천 코스입니다.",
+      "points": [
+        "구미 문화예술회관",
+        "선산 맛집 골목",
+        "해바라기 카페",
+        "낙동강 생태공원"
+      ],
+      "tags": ["카페", "힐링", "포토스팟"],
+      "score": 4.9
+    },
+    {
+      "id": 2,
+      "title": "푸드 트립 & 로컬 맛집 탐방",
+      "influencer": "맛슐랭",
+      "duration": "1일",
+      "image": "https://placehold.co/800x540/f59e0b/ffffff?text=%ED%94%84%EB%A3%A8%EB%93%9C+%ED%8A%B9%EC%A0%95",
+      "description": "구미·경북권의 대표 로컬 음식점을 한 번에 즐겨볼 수 있는 인플루트 코스.",
+      "points": [
+        "황금돼지 숯불구이",
+        "전통 한우 국밥집",
+        "수제 찹쌀떡 카페",
+        "밤하늘 야경 포인트"
+      ],
+      "tags": ["음식", "맛집", "로컬"],
+      "score": 4.8
+    },
+    {
+      "id": 3,
+      "title": "액티브 레포츠 & 자연 체험",
+      "influencer": "액티브제이",
+      "duration": "1일",
+      "image": "https://placehold.co/800x540/0ea5e9/ffffff?text=%EB%A0%88%ED%8F%AC%EC%B8%A0+%EC%97%B0%ED%95%A9",
+      "description": "레포츠와 자연을 동시에 즐기는 다이나믹한 추천 루트입니다.",
+      "points": [
+        "동락공원 자전거길",
+        "실내 클라이밍장",
+        "수상 레포츠 체험장",
+        "칠곡 강변 캠핑장"
+      ],
+      "tags": ["레포츠", "자연", "액티브"],
+      "score": 4.7
+    }
+  ]
+}

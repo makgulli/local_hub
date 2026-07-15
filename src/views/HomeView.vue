@@ -56,6 +56,9 @@ onMounted(async () => {
           <button @click="chat.open" class="bg-white/10 hover:bg-white/15 text-white font-medium px-5 py-3 rounded-2xl backdrop-blur transition-colors border border-white/10 text-sm">
             <i class="fa-solid fa-robot mr-2"></i>AI 가이드와 대화
           </button>
+          <RouterLink to="/influencer" class="bg-white/10 hover:bg-white/15 text-white font-medium px-5 py-3 rounded-2xl backdrop-blur transition-colors border border-white/10 text-sm">
+            <i class="fa-solid fa-star mr-2"></i>인플루트 추천 보기
+          </RouterLink>
         </div>
           <div class="mt-6">
               <RouterLink

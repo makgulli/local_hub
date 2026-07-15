@@ -34,6 +34,11 @@ const routes = [
     component: () => import('@/views/WeatherView.vue'),
   },
   {
+    path: '/influencer',
+    name: 'influencer',
+    component: () => import('@/views/InfluencerRouteView.vue'),
+  },
+  {
   path: '/category/:slug',
   name: 'category',
   component: () => import('@/views/CategoryView.vue'),
