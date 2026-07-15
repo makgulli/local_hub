@@ -19,7 +19,6 @@ dist-ssr
 
 # 회사에서 제공한 원본 공공데이터 JSON은 팀 내부 전달 채널로만 공유하고
 # 리포지토리에는 커밋하지 않는다 (필요 시 팀 정책에 따라 이 줄은 삭제해도 됨)
-public/data/*.json
 
 # Editor directories and files
 .vscode/*
