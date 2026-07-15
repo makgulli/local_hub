@@ -10,23 +10,20 @@ const isBoardActive = computed(() =>
 
 function navBtnClass(isActive) {
   return isActive
-    ? 'bg-emerald-50 text-emerald-700 font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm border border-emerald-100 transition-all'
-    : 'text-slate-500 hover:text-emerald-600 font-medium px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm hover:bg-slate-50 transition-all'
+    ? 'bg-slate-900 text-[#FF6467] font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm border border-slate-700 transition-all'
+    : 'text-slate-300 hover:text-[#FF6467] font-medium px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm hover:bg-slate-800 transition-all'
 }
 </script>
 
 <template>
-  <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40">
+  <header class="bg-slate-950/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <RouterLink to="/" class="flex items-center space-x-3">
-        <div class="bg-emerald-600 text-white p-2.5 rounded-xl shadow-md shadow-emerald-200 flex items-center justify-center">
-          <i class="fa-solid fa-map-location-dot text-lg"></i>
-        </div>
         <div>
-          <span class="text-xl font-extrabold tracking-tight text-slate-900">
-            구경 야호 <span class="text-emerald-600">(GUGYEONG-YAHO)</span>
+          <span class="text-xl font-extrabold tracking-tight text-slate-100">
+            구경 야호 <span class="text-[#FF6467]">(GUGYEONG-YAHO)</span>
           </span>
-          <span class="hidden sm:inline-block ml-2 text-xs font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-100">
+          <span class="hidden sm:inline-block ml-2 text-xs font-semibold bg-slate-800 text-[#FF6467] px-2 py-0.5 rounded-full border border-slate-700">
             구미·경북권
           </span>
         </div>
