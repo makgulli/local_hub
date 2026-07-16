@@ -6,10 +6,20 @@ import { recentPosts } from '@/services/boardService'
 import { useChatStore } from '@/stores/chat'
 import { fetchCurrentWeather } from '@/services/weatherService'
 import { contentTypeLabel } from '@/constants/contentType'
+import { loadInfluencerRoutes } from '@/services/influencerService'
 
 const chat = useChatStore()
 
-const guideCategories = [...CATEGORY_CONFIG]
+const categories = CATEGORY_CONFIG
+const guideCategories = [
+  ...CATEGORY_CONFIG,
+  {
+    slug: 'influencer',
+    label: '인플루트',
+    icon: 'fa-star',
+    contentTypeId: 'influencer',
+  },
+]
 
 const tourData = ref([])
 const posts = ref([])
@@ -52,6 +62,12 @@ async function selectCategory(contentTypeId) {
   loading.value = true
   loadError.value = ''
   try {
+    if (contentTypeId === 'influencer') {
+      const routes = await loadInfluencerRoutes()
+      tourData.value = routes.slice(0, 8)
+      return
+    }
+
     const { items } = await loadContentType(contentTypeId)
     tourData.value = items.slice(0, 8)
   } catch (e) {
@@ -94,7 +110,7 @@ async function selectCategory(contentTypeId) {
 
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
             <RouterLink
-              v-for="category in guideCategories"
+              v-for="category in categories"
               :key="category.slug || category.contentTypeId"
               :to="category.route || `/category/${category.slug}`"
               class="group bg-white/5 hover:bg-white/10 rounded-2xl p-4 border border-white/10 backdrop-blur transition-all duration-300 flex items-center gap-3 text-sm font-medium hover:border-[#FF6467]/40"
@@ -180,7 +196,7 @@ async function selectCategory(contentTypeId) {
         <button
           v-for="cat in guideCategories"
           :key="cat.contentTypeId || cat.slug"
-          @click="selectCategory(cat)"
+          @click="selectCategory(cat.contentTypeId || cat.slug)"
           :class="[
             'px-4 py-2 rounded-2xl text-sm font-semibold transition-all',
             selectedCategory === cat.contentTypeId
@@ -198,7 +214,47 @@ async function selectCategory(contentTypeId) {
         {{ loadError }} — public/data 폴더에 JSON 파일이 있는지 확인해주세요.
       </p>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div v-if="selectedCategory === 'influencer'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div
+          v-for="route in tourData"
+          :key="route.id"
+          class="group bg-white rounded-2xl overflow-hidden border border-slate-200/60 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+        >
+          <div class="relative overflow-hidden aspect-[4/3] bg-slate-100">
+            <img
+              :src="route.image"
+              :alt="route.title"
+              class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+              @error="handleImageError($event, route.title)"
+            />
+            <div class="absolute top-3 left-3 bg-[#FF6467] text-white px-2.5 py-1 rounded-lg text-[10px] font-bold shadow-md border border-[#FF6467]/70">
+              인플루트
+            </div>
+          </div>
+          <div class="p-5 flex-grow flex flex-col justify-between space-y-3">
+            <div>
+              <h3 class="font-bold text-slate-900 group-hover:text-[#FF6467] transition-colors line-clamp-1" :title="route.title">
+                {{ route.title }}
+              </h3>
+              <p class="text-slate-500 text-sm mt-2 line-clamp-2">
+                {{ route.description }}
+              </p>
+              <p class="text-slate-500 text-xs mt-2 flex items-center">
+                <i class="fa-solid fa-star mr-1.5 text-[#FF6467]"></i>
+                <span class="truncate">{{ route.influencer }}</span>
+              </p>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-xs text-slate-400">평점 {{ route.score?.toFixed(1) ?? '—' }}</span>
+              <RouterLink to="/influencer" class="text-xs text-[#FF6467] font-bold hover:text-[#E53B47] hover:underline flex items-center transition-colors">
+                더 보기 <i class="fa-solid fa-chevron-right ml-1 text-[9px]"></i>
+              </RouterLink>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div
           v-for="poi in tourData"
           :key="poi.contentid"
