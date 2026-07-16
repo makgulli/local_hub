@@ -13,7 +13,7 @@ const props = defineProps({
         class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
       />
       <div class="absolute inset-x-0 top-0 p-4 flex items-center justify-between gap-3">
-        <span class="bg-emerald-600 text-white text-[11px] font-bold uppercase px-3 py-1 rounded-full border border-emerald-500/30">{{ route.influencer }}</span>
+        <span class="bg-[#FF6467] text-white text-[11px] font-bold uppercase px-3 py-1 rounded-full border border-[#FF6467]/30">{{ route.influencer }}</span>
         <span class="bg-white/90 text-slate-700 text-[11px] px-3 py-1 rounded-full border border-slate-200">{{ route.duration }}</span>
       </div>
     </div>
@@ -21,14 +21,14 @@ const props = defineProps({
     <div class="p-5 space-y-4">
       <div>
         <h3 class="text-lg font-bold text-slate-900">{{ route.title }}</h3>
-        <p class="mt-2 text-sm text-slate-500 leading-relaxed">{{ route.description }}</p>
+        <p class="mt-2 text-sm text-[#FF6467] leading-relaxed">{{ route.description }}</p>
       </div>
 
       <div class="flex flex-wrap gap-2">
         <span
           v-for="tag in route.tags"
           :key="tag"
-          class="text-[11px] text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100"
+          class="text-[11px] text-[#FF6467] bg-[#FF6467]/10 px-3 py-1 rounded-full border border-[#FF6467]/30"
         >
           {{ tag }}
         </span>
@@ -43,7 +43,7 @@ const props = defineProps({
         </div>
         <div class="flex flex-col justify-between">
           <p class="text-xs uppercase tracking-[0.18em] text-slate-400">평점</p>
-          <p class="mt-2 text-2xl font-bold text-emerald-600">{{ route.score.toFixed(1) }}</p>
+          <p class="mt-2 text-2xl font-bold text-[#FF6467]">{{ route.score.toFixed(1) }}</p>
         </div>
       </div>
     </div>
