@@ -130,6 +130,9 @@ onMounted(async () => {
       <p v-if="filteredRoutes.length === 0 && !loadError" class="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
         조건에 맞는 추천 루트를 찾을 수 없습니다. 검색어나 태그를 변경해보세요.
       </p>
+      <div class="mt-8 rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center text-sm font-semibold text-slate-500">
+        comming soon
+      </div>
     </section>
   </div>
 </template>
