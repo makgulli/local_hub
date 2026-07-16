@@ -43,6 +43,31 @@ const BASE_URL = `${import.meta.env.BASE_URL}data/`
 /** contentTypeId 별 fetch 결과 캐시 (SPA 세션 동안 재요청 방지) */
 const cache = new Map()
 
+export function getBestImageUrl(item, fallback = '') {
+  const candidates = [
+    item?.firstimage,
+    item?.firstimage2,
+    item?.image,
+    item?.img,
+    item?.thumbnail,
+    item?.thumbnailImage,
+    item?.mainimage,
+    item?.mainImage,
+    item?.imageUrl,
+    item?.imgsrc,
+  ]
+
+  const raw = candidates.find((value) => typeof value === 'string' && value.trim())
+  if (!raw) return fallback
+
+  const value = raw.trim()
+  if (value.startsWith('data:')) return value
+  if (value.startsWith('/')) return value
+  if (/^https?:\/\//i.test(value)) return value.replace(/^http:\/\//i, 'https://')
+
+  return value
+}
+
 /**
  * 지정한 contentTypeId 의 JSON 파일을 불러온다.
  * SCHEMA.md 최상위 구조: { region, contentType, contentTypeId, total, items[] }
@@ -68,7 +93,7 @@ export async function loadContentType(contentTypeId) {
     ...item,
     lat: item.mapy ? Number(item.mapy) : null,
     lng: item.mapx ? Number(item.mapx) : null,
-    hasImage: Boolean(item.firstimage),
+    hasImage: Boolean(getBestImageUrl(item)),
     typeLabel: contentTypeLabel(item.contenttypeid),
   }))
 
