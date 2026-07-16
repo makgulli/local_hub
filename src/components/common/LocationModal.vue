@@ -36,7 +36,7 @@ const kakaoMapUrl = computed(() => {
           <iframe
             v-if="item?.lat && item?.lng"
             :src="`https://map.kakao.com/link/map/${encodeURIComponent(item.title || '위치')},${item.lat},${item.lng}`"
-            class="w-full h-72 border-0"
+            class="w-full h-[30rem] border-0"
             title="카카오 맵 위치 미리보기"
           />
           <div v-else class="p-5 text-sm text-slate-500">
