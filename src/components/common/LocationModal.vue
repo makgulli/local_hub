@@ -32,7 +32,22 @@ const kakaoMapUrl = computed(() => {
       </div>
 
       <div class="p-5 space-y-4">
+        <div class="rounded-3xl border border-slate-200 p-4">
+          <p class="text-sm text-slate-700">{{ item?.overview || item?.title || '설명이 없습니다.' }}</p>
+        </div>
 
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="rounded-3xl border border-slate-200 p-4">
+            <p class="text-xs text-slate-400 uppercase">위치</p>
+            <p class="mt-2 text-sm text-slate-700">{{ item?.addr1 || '주소 없음' }}</p>
+          </div>
+          <div class="rounded-3xl border border-slate-200 p-4">
+            <p class="text-xs text-slate-400 uppercase">좌표</p>
+            <p class="mt-2 text-sm text-slate-700">
+              {{ item?.lat != null ? item.lat.toFixed(6) : '없음' }},
+              {{ item?.lng != null ? item.lng.toFixed(6) : '없음' }}
+            </p>
+          </div>
         </div>
 
         <div class="rounded-3xl border border-slate-200 overflow-hidden">
