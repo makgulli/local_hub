@@ -7,6 +7,7 @@ import { useChatStore } from '@/stores/chat'
 import { fetchCurrentWeather } from '@/services/weatherService'
 import { contentTypeLabel } from '@/constants/contentType'
 import { loadInfluencerRoutes } from '@/services/influencerService'
+import LocationModal from '@/components/common/LocationModal.vue'
 
 
 const chat = useChatStore()
@@ -61,6 +62,18 @@ function handleImageError(e, title, contentTypeId) {
 
 function askAIAboutPoi(poi) {
   chat.askAboutPoi(poi)
+}
+
+const locationModalOpen = ref(false)
+const selectedLocation = ref(null)
+
+function openLocationModal(item) {
+  selectedLocation.value = item
+  locationModalOpen.value = true
+}
+function closeLocationModal() {
+  locationModalOpen.value = false
+  selectedLocation.value = null
 }
 
 function toggleWeatherDetail() {
@@ -287,7 +300,10 @@ async function selectCategory(contentTypeId) {
           :key="poi.contentid"
           class="group bg-white rounded-2xl overflow-hidden border border-slate-200/60 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
         >
-          <div class="relative overflow-hidden aspect-[4/3] bg-slate-100">
+          <div
+            class="relative overflow-hidden aspect-[4/3] bg-slate-100 cursor-pointer"
+            @click="openLocationModal(poi)"
+          >
             <img
               :src="getImageUrl(poi, poi.title, poi.contenttypeid || selectedCategory)"
               :alt="poi.title"
@@ -299,15 +315,23 @@ async function selectCategory(contentTypeId) {
             </div>
           </div>
           <div class="p-5 flex-grow flex flex-col justify-between space-y-3">
-            <div>
+            <div class="cursor-pointer" @click="openLocationModal(poi)">
               <h3 class="font-bold text-slate-900 group-hover:text-[#FF6467] transition-colors line-clamp-1" :title="poi.title">
                 {{ poi.title }}
               </h3>
-              <p class="text-slate-500 text-xs mt-1.5">
-                <span class="truncate">{{ poi.addr1 || '' }}</span>
+              <p class="text-slate-500 text-xs mt-1.5 flex items-center">
+                <i class="fa-solid fa-location-dot mr-1.5 text-slate-400"></i>
+                <span class="truncate">{{ poi.addr1 || '상세주소 확인중' }}</span>
               </p>
             </div>
             <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <button
+                type="button"
+                @click="openLocationModal(poi)"
+                class="text-xs font-bold text-slate-600 transition-colors hover:text-slate-900"
+              >
+                위치 보기
+              </button>
               <button @click="askAIAboutPoi(poi)" class="text-xs text-[#FF6467] font-bold hover:text-[#E53B47] hover:underline flex items-center transition-colors">
                 AI에 질문 <i class="fa-solid fa-chevron-right ml-1 text-[9px]"></i>
               </button>
@@ -356,5 +380,11 @@ async function selectCategory(contentTypeId) {
         <p class="text-slate-400 text-sm">아직 등록된 게시물이 없습니다. 첫 이야기를 들려주세요!</p>
       </div>
     </div>
+
+    <LocationModal
+      :show="locationModalOpen"
+      :item="selectedLocation"
+      @close="closeLocationModal"
+    />
   </div>
 </template>
