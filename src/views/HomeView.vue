@@ -8,6 +8,7 @@ import { fetchCurrentWeather } from '@/services/weatherService'
 import { contentTypeLabel } from '@/constants/contentType'
 import { loadInfluencerRoutes } from '@/services/influencerService'
 
+
 const chat = useChatStore()
 
 const guideCategories = [
