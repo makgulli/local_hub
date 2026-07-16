@@ -1,16 +1,45 @@
 <script setup>
+import { getBestImageUrl } from '@/services/dataService'
+
 const props = defineProps({
   route: { type: Object, required: true },
 })
+
+function getCategoryImageSeed(route) {
+  const text = `${route?.title || ''} ${route?.description || ''} ${route?.tags?.join(' ') || ''}`.toLowerCase()
+
+  if (text.includes('맛') || text.includes('음식') || text.includes('카페')) {
+    return `food-${encodeURIComponent(route?.title || 'travel')}`
+  }
+  if (text.includes('숙소') || text.includes('호텔') || text.includes('펜션')) {
+    return `hotel-${encodeURIComponent(route?.title || 'travel')}`
+  }
+
+  return `travel-${encodeURIComponent(route?.title || 'travel')}`
+}
+
+function getImageUrl(route) {
+  const raw = getBestImageUrl(route)
+  if (raw) {
+    return raw
+  }
+
+  return `https://picsum.photos/seed/${getCategoryImageSeed(route)}/600/450`
+}
+
+function handleImageError(e) {
+  e.target.src = `https://picsum.photos/seed/${getCategoryImageSeed(props.route)}/600/450`
+}
 </script>
 
 <template>
   <article class="group bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-shadow duration-300">
     <div class="relative overflow-hidden aspect-[4/3] bg-slate-100">
       <img
-        :src="route.image"
+        :src="getImageUrl(route)"
         :alt="route.title"
         class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+        @error="handleImageError"
       />
       <div class="absolute inset-x-0 top-0 p-4 flex items-center justify-between gap-3">
         <span class="bg-emerald-600 text-white text-[11px] font-bold uppercase px-3 py-1 rounded-full border border-emerald-500/30">{{ route.influencer }}</span>

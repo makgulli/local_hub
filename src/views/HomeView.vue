@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { loadContentType, CATEGORY_CONFIG } from '@/services/dataService'
+import { loadContentType, CATEGORY_CONFIG, getBestImageUrl } from '@/services/dataService'
 import { recentPosts } from '@/services/boardService'
 import { useChatStore } from '@/stores/chat'
 import { fetchCurrentWeather } from '@/services/weatherService'
@@ -28,8 +28,34 @@ const loadError = ref('')
 const loading = ref(false)
 const showWeatherDetail = ref(false)
 
-function handleImageError(e, title) {
-  e.target.src = `https://placehold.co/600x450/1e3a8a/ffffff?text=${encodeURIComponent(title)}`
+function getCategoryImageSeed(contentTypeId, fallbackTitle) {
+  const styleMap = {
+    '12': 'landscape',
+    '14': 'culture',
+    '15': 'festival',
+    '25': 'route',
+    '28': 'adventure',
+    '32': 'hotel',
+    '38': 'shopping',
+    '39': 'food',
+    influencer: 'travel',
+  }
+
+  const base = styleMap[String(contentTypeId)] || styleMap.influencer
+  return `${base}-${encodeURIComponent(fallbackTitle || 'travel')}`
+}
+
+function getImageUrl(item, fallbackTitle, contentTypeId) {
+  const raw = getBestImageUrl(item)
+  if (raw) {
+    return raw
+  }
+
+  return `https://picsum.photos/seed/${getCategoryImageSeed(contentTypeId, fallbackTitle)}/600/450`
+}
+
+function handleImageError(e, title, contentTypeId) {
+  e.target.src = `https://picsum.photos/seed/${getCategoryImageSeed(contentTypeId, title)}/600/450`
 }
 
 function askAIAboutPoi(poi) {
@@ -222,10 +248,10 @@ async function selectCategory(contentTypeId) {
         >
           <div class="relative overflow-hidden aspect-[4/3] bg-slate-100">
             <img
-              :src="route.image"
+              :src="getImageUrl(route, route.title, 'influencer')"
               :alt="route.title"
               class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-              @error="handleImageError($event, route.title)"
+              @error="handleImageError($event, route.title, 'influencer')"
             />
             <div class="absolute top-3 left-3 bg-[#FF6467] text-white px-2.5 py-1 rounded-lg text-[10px] font-bold shadow-md border border-[#FF6467]/70">
               인플루트
@@ -262,10 +288,10 @@ async function selectCategory(contentTypeId) {
         >
           <div class="relative overflow-hidden aspect-[4/3] bg-slate-100">
             <img
-              :src="poi.firstimage || `https://placehold.co/600x450/1e3a8a/ffffff?text=${encodeURIComponent(poi.title)}`"
+              :src="getImageUrl(poi, poi.title, poi.contenttypeid || selectedCategory)"
               :alt="poi.title"
               class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-              @error="handleImageError($event, poi.title)"
+              @error="handleImageError($event, poi.title, poi.contenttypeid || selectedCategory)"
             />
             <div class="absolute top-3 left-3 bg-[#FF6467] text-white px-2.5 py-1 rounded-lg text-[10px] font-bold shadow-md border border-[#FF6467]/70">
               {{ contentTypeLabel(poi.contenttypeid) }}
@@ -276,9 +302,8 @@ async function selectCategory(contentTypeId) {
               <h3 class="font-bold text-slate-900 group-hover:text-[#FF6467] transition-colors line-clamp-1" :title="poi.title">
                 {{ poi.title }}
               </h3>
-              <p class="text-slate-500 text-xs mt-1.5 flex items-center">
-                <i class="fa-solid fa-location-dot mr-1.5 text-[#FF6467]"></i>
-                <span class="truncate">{{ poi.addr1 || '상세주소 확인중' }}</span>
+              <p class="text-slate-500 text-xs mt-1.5">
+                <span class="truncate">{{ poi.addr1 || '' }}</span>
               </p>
             </div>
             <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
